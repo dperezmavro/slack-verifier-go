@@ -51,6 +51,16 @@ func TestCheckHeader(t *testing.T) {
 			h:    "myHeader",
 		},
 		{
+			name: "multiple values",
+			fail: true,
+			r: &http.Request{
+				Header: http.Header{
+					"myHeader": []string{"no", "pass"},
+				},
+			},
+			h: "myHeader",
+		},
+		{
 			name: "pass",
 			r: &http.Request{
 				Header: http.Header{

@@ -12,8 +12,8 @@ import (
 type SlackVerifier func(http.Handler) http.Handler
 
 const (
-	SLACK_AUTH_HEADER      string = "X-Slack-Signature"
-	SLACK_TIMESTAMP_HEADER string = "X-Slack-Request-Timestamp"
+	slackAuthHeader      string = "X-Slack-Signature"
+	slackTimestampHeader string = "X-Slack-Request-Timestamp"
 )
 
 func checkHeader(h string, r *http.Request) error {
@@ -23,16 +23,19 @@ func checkHeader(h string, r *http.Request) error {
 	return nil
 }
 
-func Verify(slackSecret []byte) SlackVerifier {
+// VerifySlackMessage is an http middleware that
+// will perform message verification on the incoming
+// request to verify it is coming from slack
+func VerifySlackMessage(slackSecret []byte) SlackVerifier {
 	return func(h http.Handler) http.Handler {
 		return http.HandlerFunc(
 			func(w http.ResponseWriter, r *http.Request) {
-				if err := checkHeader(SLACK_AUTH_HEADER, r); err != nil {
+				if err := checkHeader(slackAuthHeader, r); err != nil {
 					http.Error(w, err.Error(), http.StatusBadRequest)
 					return
 				}
 
-				if err := checkHeader(SLACK_TIMESTAMP_HEADER, r); err != nil {
+				if err := checkHeader(slackTimestampHeader, r); err != nil {
 					http.Error(w, err.Error(), http.StatusBadRequest)
 					return
 				}
@@ -44,8 +47,8 @@ func Verify(slackSecret []byte) SlackVerifier {
 					return
 				}
 
-				slackSignature := r.Header[SLACK_AUTH_HEADER][0]
-				slackTimeStamp := r.Header[SLACK_TIMESTAMP_HEADER][0]
+				slackSignature := r.Header[slackAuthHeader][0]
+				slackTimeStamp := r.Header[slackTimestampHeader][0]
 
 				messageDigest := util.BuildMessageForAuth(string(body), slackTimeStamp, slackSecret)
 				if !hmac.Equal(messageDigest, []byte(slackSignature)) {
