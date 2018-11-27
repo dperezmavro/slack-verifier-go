@@ -1,4 +1,4 @@
-package middlware
+package middleware
 
 import (
 	"crypto/hmac"
@@ -14,7 +14,6 @@ type SlackVerifier func(http.Handler) http.Handler
 const (
 	SLACK_AUTH_HEADER      string = "X-Slack-Signature"
 	SLACK_TIMESTAMP_HEADER string = "X-Slack-Request-Timestamp"
-	SLACK_AUTH_ENV         string = "SLACKAUTHENV"
 )
 
 func checkHeader(h string, r *http.Request) error {
