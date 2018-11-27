@@ -50,7 +50,7 @@ func Verify(slackSecret []byte) SlackVerifier {
 
 				messageDigest := util.BuildMessageForAuth(string(body), slackTimeStamp, slackSecret)
 				if !hmac.Equal(messageDigest, []byte(slackSignature)) {
-					http.Error(w, fmt.Sprintf(""), http.StatusUnauthorized)
+					http.Error(w, fmt.Sprintf("signature check failed"), http.StatusUnauthorized)
 					return
 				}
 				h.ServeHTTP(w, r)
