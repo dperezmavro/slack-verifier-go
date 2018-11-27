@@ -9,8 +9,6 @@ import (
 	"github.com/dperezmavro/slack-verifier-go/util"
 )
 
-type SlackVerifier func(http.Handler) http.Handler
-
 const (
 	slackAuthHeader      string = "X-Slack-Signature"
 	slackTimestampHeader string = "X-Slack-Request-Timestamp"
@@ -26,7 +24,7 @@ func checkHeader(h string, r *http.Request) error {
 // VerifySlackMessage is an http middleware that
 // will perform message verification on the incoming
 // request to verify it is coming from slack
-func VerifySlackMessage(slackSecret []byte) SlackVerifier {
+func VerifySlackMessage(slackSecret []byte) func(http.Handler) http.Handler {
 	return func(h http.Handler) http.Handler {
 		return http.HandlerFunc(
 			func(w http.ResponseWriter, r *http.Request) {
