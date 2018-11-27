@@ -3,7 +3,7 @@ package middleware
 import (
 	"crypto/hmac"
 	"fmt"
-	"io"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/dperezmavro/slack-verifier-go/util"
@@ -40,8 +40,12 @@ func VerifySlackMessage(slackSecret []byte) SlackVerifier {
 					return
 				}
 
+				if r.Method != http.MethodPost {
+					http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+				}
+
 				var body []byte
-				_, err := io.ReadFull(r.Body, body)
+				body, err := ioutil.ReadAll(r.Body)
 				if err != nil {
 					http.Error(w, fmt.Sprintf("failed to ready body: %+v", err), http.StatusInternalServerError)
 					return
